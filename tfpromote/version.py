@@ -1,4 +1,4 @@
-__version__ = '0.1.2'
+__version__ = '0.2.0'
 __title__ = 'tfpromote'
 __description__ = 'Compare and promote Terraform files from dev to prod environments.'
 __url__ = 'https://github.com/billtrust/terraform-promote'

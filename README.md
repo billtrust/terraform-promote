@@ -42,7 +42,23 @@ $ pip install tfpromote
 
 TFPromote will analyze the soure and target environment, show you the differences, prompt if you want to copy .tf files from the source to the target environment.
 
+The easiest workflow is to let TFPromote automatically determine your from and to path.  Start from the target or "to path" and just use `--auto` or `-a` and TFPromote will figure out the lower environment you want from your from path.
+
 ```shell
+$ pwd
+/devel/myapp/terraform/stage
+$ tfpromote --auto
+TFPromote
+From path: /devel/myapp/terraform/dev
+To   path: /devel/myapp/terraform/stage
+Continue (Y/n)?
+```
+
+Or you can specify your from and to paths directly. Note that if you supply only the from path or to path, but not both, TFPromote will assume the current directory is the path you didn't specify.
+
+```shell
+# TFPROMOTE_ENVS defaults to the below, but you can use any custom named environments by overriding
+$ export TFPROMOTE_ENVS="dev,stage,prod"
 $ pwd
 /devel/myapp/terraform/
 $ tfpromote --to ./dev --from ./stage

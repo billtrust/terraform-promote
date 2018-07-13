@@ -33,7 +33,8 @@ setup(name=about['__title__'],
       packages=find_packages(),
       entry_points={
         "console_scripts": [
-            'tfpromote = tfpromote.tfpromote:main'
+            'tfpromote = tfpromote.tfpromote:main',
+            'tfp = tfpromote.tfpromote:main'
         ]
         },
       license=about['__license__'],

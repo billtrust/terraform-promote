@@ -8,6 +8,40 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "WARNING"))
 logger = logging.getLogger(__name__)
 
 
+def get_env_names():
+    '''Expects an environment variable TFPROMOTE_ENVS to exist with a comma separated list of
+    environment names, with the first being the lowest environment. Returns this as a list.'''
+    env_names = os.environ.get("TFPROMOTE_ENVS", "dev,stage,prod")
+    try:
+        env_list = []
+        for env_name in env_names.split(','):
+            env_list.append(env_name.strip())
+        return env_list
+    except Exception as e:
+        msg = "Error parsing comma separated environment list in TFPROMOTE_ENVS: {}".format(e)
+        logger.error(msg)
+        raise Exception(msg)
+
+
+def is_env_path_valid(path):
+    '''Make sure the last part of the path is one of the directories in TFPROMOTE_ENVS.'''
+    env_name = os.path.basename(path)
+    return True if env_name in get_env_names() else False
+
+
+def get_lower_environment(env_name):
+    env_names = get_env_names()
+    try:
+        env_idx = env_names.index(env_name)
+    except ValueError:
+        raise Exception("Environment ('{}') does not match any environment in TFPROMOTE_ENVS".format(env_name))
+
+    if env_idx == 0:
+        raise Exception("There is no lower environment than {}.".format(env_name))
+
+    return env_names[env_idx - 1]
+
+
 def get_nonenv_tf_files_in_directory(directory):
     env_name = os.path.basename(os.path.normpath(directory))
     filenames = []
