@@ -112,7 +112,7 @@ def main():
     # if any portion of the to or from path was unspecified (and left to auto), seek
     # confirmation before proceeding, unless --auto-approve was specified.
     if (not args.to_path or not args.from_path) and not args.auto_approve:
-        print("Continue (Y/n)? ")
+        print("Continue (N/y)? ")
         response = sys.stdin.readline()
         if not response[0] == 'y':
             sys.exit(1)

@@ -1,6 +1,6 @@
 # TFPromote
 
-A CLI for promoting Terraform code through environments (dev, stage, prod, etc.)
+A CLI for promoting Terraform code through environments (dev, stage, prod, etc.).  Automates comparing and copying of appropriate .tf files forward from environment to environment.  All stuff you can do in bash on the command line but this saves you a lot of typing and helps reduce errors when performing this monotonous task in an environment with many microservices all needing Terraform deployments.
 
 ## Required Directory Structure
 
@@ -51,8 +51,10 @@ $ tfpromote --auto
 TFPromote
 From path: /devel/myapp/terraform/dev
 To   path: /devel/myapp/terraform/stage
-Continue (Y/n)?
+Continue (N/y)?
 ```
+
+Easy as pie.
 
 Or you can specify your from and to paths directly. Note that if you supply only the from path or to path, but not both, TFPromote will assume the current directory is the path you didn't specify.
 
