@@ -3,6 +3,7 @@ import sys
 import logging
 import difflib
 import shutil
+import codecs
 
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "WARNING"))
 logger = logging.getLogger(__name__)
@@ -78,9 +79,9 @@ def validate_filenames(from_files, to_files):
 
 
 def diff_files(file1_path, file2_path):
-    with open(file1_path, 'r', encoding='ISO-8859-1', errors='ignore') as file1:
+    with codecs.open(file1_path, 'r', errors='ignore') as file1:
         file1_lines = file1.readlines()
-    with open(file2_path, 'r', encoding='ISO-8859-1', errors='ignore') as file2:
+    with codecs.open(file2_path, 'r', errors='ignore') as file2:
         file2_lines = file2.readlines()
 
     difflines = difflib.unified_diff(

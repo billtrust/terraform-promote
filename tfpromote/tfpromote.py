@@ -244,7 +244,7 @@ def main():
                         os.path.join(tf_envs['to_path'], filename))
                     os.system(cmd)
                 else:
-                    print('WARNING: No difftool specified for {}. Provide --difftool or --printdiff.'.format(filename))
+                    print('WARNING: No difftool specified for {}. Provide environment variable TFPROMOTE_DIFFTOOL or argument --difftool or --printdiff.'.format(filename))
 
 
     proceed = False
