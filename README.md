@@ -51,7 +51,7 @@ $ tfpromote --auto
 TFPromote
 From path: /devel/myapp/terraform/dev
 To   path: /devel/myapp/terraform/stage
-Continue (N/y)?
+Continue? (CTRL+C to abort)
 ```
 
 Easy as pie.

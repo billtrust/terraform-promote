@@ -112,10 +112,8 @@ def main():
     # if any portion of the to or from path was unspecified (and left to auto), seek
     # confirmation before proceeding, unless --auto-approve was specified.
     if (not args.to_path or not args.from_path) and not args.auto_approve:
-        print("Continue (N/y)? ")
+        print("Continue? (CTRL+C to abort)")
         response = sys.stdin.readline()
-        if not response[0] == 'y':
-            sys.exit(1)
 
     if difftool:
         if not promote_tool.find_executable(difftool):
