@@ -4,13 +4,19 @@ from __future__ import print_function
 import os
 import sys
 import argparse
+from glob import glob
 from . import promote_tool
+
+
+AWS_REGIONS = ('us-east-1', 'us-east-2', 'us-west-1', 'us-west-2')
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--from', dest='from_path', required=False)
     parser.add_argument('--to', dest='to_path', required=False)
+    parser.add_argument('-r', '--region', dest='region', required=False)
+    parser.add_argument('-tr', '--toregion', dest='to_region', required=False)
     parser.add_argument('-a', '--auto', dest='auto_paths', action='store_true', default=False,
         help='Assumes current path is to path and from path is the lesser environment in TFPROMOTE_ENVS')
     parser.add_argument('--auto-approve', action='store_true', default=False)
@@ -73,12 +79,45 @@ def get_to_from_environments(args):
     if not os.path.exists(to_path):
         raise Exception("To path does not exist: {}".format(
             to_path))
-    return {
+    return_args = {
         'from_path': from_path,
         'from_env': from_env,
         'to_path': to_path,
         'to_env': to_env
-    }
+    }            
+
+    # Find subdirs in to_path
+    if args.auto_paths and not args.region and not glob(from_path+"/*.tf"):
+        sub_dirs = [ name for name in os.listdir(from_path) if os.path.isdir(os.path.join(from_path, name))]
+        subdirs_result = tuple(set(sub_dirs) & set(AWS_REGIONS))
+        if subdirs_result:
+            args.region = subdirs_result[0]
+
+    # Add AWS region to to and from path 
+    if args.region:
+        if args.region not in AWS_REGIONS:
+            raise Exception("Invalid AWS Region: {}".format(args.region))
+        else:
+            from_path = os.path.join(from_path,args.region)
+            if not os.path.exists(from_path):
+                raise Exception("From path does not exist: {}".format(from_path))
+            if args.to_region and args.to_region not in AWS_REGIONS:
+                raise Exception("To region does not exist: {}".format(args.to_region))
+            elif args.to_region:
+                to_path = os.path.join(to_path, args.to_region)
+            else:
+                to_path = os.path.join(to_path,args.region)
+            if not os.path.exists(to_path):
+                print("To path does not exist: {}".format(to_path))
+                try:  
+                    os.mkdir(to_path)
+                except OSError:  
+                    raise Exception("Creation of the directory {} failed".format(to_path))
+                else:  
+                    print("Successfully created the directory {}.".format(to_path))
+            return_args['from_path'] = from_path
+            return_args['to_path'] = to_path
+    return return_args
 
 
 def main():
