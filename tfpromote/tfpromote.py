@@ -30,8 +30,9 @@ def get_to_from_environments(args):
         to_path = os.getcwd()
         to_env = os.path.basename(os.path.normpath(to_path))
         if not promote_tool.is_env_path_valid(to_env):
-            raise Exception(('In --auto paths mode, current directory must be an ',
-                   'environment in TFPROMOTE_ENVS.'))
+            raise Exception('In auto paths mode, current directory must be an ' + \
+                            'environment in TFPROMOTE_ENVS, or specifically indicate ' + \
+                            'paths via --from and/or --to.')
 
         # the from dir will be the lower environment
         base_path = os.path.split(os.path.abspath(os.getcwd()))[0]
