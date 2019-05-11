@@ -17,8 +17,8 @@ try:
     # in addition to pip install pypandoc, might have to: apt install -y pandoc
     import pypandoc
     long_description = pypandoc.convert('README.md', 'rst')
-except (IOError, ImportError) as e:
-    print("Error converting READMD.md to rst:", str(e))
+except (OSError, IOError, ImportError) as e:
+    print("Error converting READMD.md to rst: " + str(e))
     long_description = open('README.md').read()
 
 setup(name=about['__title__'],
