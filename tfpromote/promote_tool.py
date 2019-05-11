@@ -27,7 +27,13 @@ def get_env_names():
 def is_env_path_valid(path):
     '''Make sure the last part of the path is one of the directories in TFPROMOTE_ENVS.'''
     env_name = os.path.basename(path)
-    return True if env_name in get_env_names() else False
+    # e.g. /dev/
+    if env_name in get_env_names():
+        return True
+    # e.g. /dev-us-east-1/
+    if env_name.split('-')[0] in get_env_names():
+        return True
+    return False
 
 
 def get_lower_environment(env_name):
@@ -45,6 +51,7 @@ def get_lower_environment(env_name):
 
 def get_nonenv_tf_files_in_directory(directory):
     env_name = os.path.basename(os.path.normpath(directory))
+    env_name = env_name.split('-')[0] # '/dev/', '/dev-us-east-1/' -> 'dev'
     filenames = []
     for file in os.listdir(directory):
         if file.endswith(".tf"):
@@ -60,6 +67,7 @@ def get_env_tf_files_in_directory(directory):
     with the env- part removed.  Key assumption - that the last folder in the directory
     structure is also the name of the environment.'''
     env_name = os.path.basename(os.path.normpath(directory))
+    env_name = env_name.split('-')[0] # '/dev/', '/dev-us-east-1/' -> 'dev'
     filenames = []
     for file in os.listdir(directory):
         if file.endswith(".tf"):
@@ -91,8 +99,9 @@ def diff_files(file1_path, file2_path):
 
 
 def envprefix_from_directory(directory):
-    envname = os.path.basename(os.path.normpath(directory))
-    prefix = "{}-".format(envname)
+    env_name = os.path.basename(os.path.normpath(directory))
+    env_name = env_name.split('-')[0] # '/dev/', '/dev-us-east-1/' -> 'dev'
+    prefix = "{}-".format(env_name)
     return prefix
     
 

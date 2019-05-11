@@ -7,12 +7,11 @@ import argparse
 from . import promote_tool
 
 
-def parse_args():
-    parser = argparse.ArgumentParser()
+def create_parser():
+    parser = argparse.ArgumentParser(add_help=False) # since we are specifically handing --help
+    parser.add_argument('--help', action='store_true', required=False)
     parser.add_argument('--from', dest='from_path', required=False)
     parser.add_argument('--to', dest='to_path', required=False)
-    parser.add_argument('-a', '--auto', dest='auto_paths', action='store_true', default=False,
-        help='Assumes current path is to path and from path is the lesser environment in TFPROMOTE_ENVS')
     parser.add_argument('--auto-approve', action='store_true', default=False)
     parser.add_argument('--ignore-missing', action='store_true', default=False)
 
@@ -20,8 +19,7 @@ def parse_args():
     mutually_exclusive_group.add_argument('--difftool', required=False)
     mutually_exclusive_group.add_argument('--printdiff', action='store_true')
 
-    args = parser.parse_args()
-    return args
+    return parser
 
 
 def get_to_from_environments(args):
@@ -56,7 +54,10 @@ def get_to_from_environments(args):
 
     # assumes the last folder in the directory structure is the name of the environment
     from_env = os.path.basename(os.path.normpath(from_path))
+    from_env = from_env.split('-')[0] # '/dev/' or 'dev-us-east-1' -> 'dev'
     to_env   = os.path.basename(os.path.normpath(to_path))
+    to_env = to_env.split('-')[0] # '/dev/' or 'dev-us-east-1' -> 'dev'
+
 
     # validate env names
     if not promote_tool.is_env_path_valid(from_env):
@@ -89,11 +90,12 @@ def main():
 
     print('TFPromote version {}'.format(about['__version__']))
 
-    args = parse_args()
+    parser = create_parser()
+    args = parser.parse_args()
 
-    if not args.auto_paths and not args.to_path and not args.from_path:
-        print("You must specify from and to paths, use --auto or --from and --to.")
-        sys.exit(1)
+    if args.help:
+        parser.print_help()
+        parser.exit()
 
     if args.difftool:
         difftool = args.difftool
@@ -106,8 +108,8 @@ def main():
         print(e)
         sys.exit(1)
 
-    print("From path: {}".format(tf_envs['from_path']))
-    print("To   path: {}".format(tf_envs['to_path']))
+    print("From env {:<4}, path: {}".format(tf_envs['from_env'], tf_envs['from_path']))
+    print("To   env {:<4}, path: {}".format(tf_envs['to_env'], tf_envs['to_path']))
 
     # if any portion of the to or from path was unspecified (and left to auto), seek
     # confirmation before proceeding, unless --auto-approve was specified.
@@ -236,11 +238,23 @@ def main():
                 print("Diff: {} - {} lines different".format(
                     filename, len(difflines)))
                 if difftool:
+                    full_from_filename = os.path.join(tf_envs['from_path'], filename)
+                    full_to_filename = os.path.join(tf_envs['to_path'], filename)
+                    if not os.path.isfile(full_from_filename):
+                        print("From filename does not exist: " + full_from_filename)
+                    if not os.path.isfile(full_to_filename):
+                        print("To filename does not exist: " + full_to_filename)
                     cmd = "{} {} {}".format(
                         difftool,
-                        os.path.join(tf_envs['from_path'], filename),
-                        os.path.join(tf_envs['to_path'], filename))
-                    os.system(cmd)
+                        full_from_filename,
+                        full_to_filename)
+                    return_code = os.system(cmd)
+                    if return_code != 0:
+                        print("Error executing diff command: {}".format(cmd))
+                        print("Continue (N/y)?")
+                        response = sys.stdin.readline()
+                        if response[0] != 'y':
+                            sys.exit(1)
                 else:
                     print('WARNING: No difftool specified for {}. Provide environment variable TFPROMOTE_DIFFTOOL or argument --difftool or --printdiff.'.format(filename))
 
