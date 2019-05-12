@@ -14,6 +14,8 @@ def create_parser():
     parser.add_argument('--to', dest='to_path', required=False)
     parser.add_argument('--auto-approve', action='store_true', default=False)
     parser.add_argument('--ignore-missing', action='store_true', default=False)
+    parser.add_argument('-a', '--auto', dest='auto_paths', action='store_true', default=False,
+        help='Assumes current path is to path and from path is the lesser environment in TFPROMOTE_ENVS')
 
     mutually_exclusive_group = parser.add_mutually_exclusive_group(required=False)
     mutually_exclusive_group.add_argument('--difftool', required=False)
@@ -93,6 +95,9 @@ def main():
 
     parser = create_parser()
     args = parser.parse_args()
+    
+    if args.auto_paths:
+        print('WARNING: --auto argument is deprecated, this is now default behavior, omit this argument in the future.')
 
     if args.help:
         parser.print_help()
@@ -108,15 +113,20 @@ def main():
     except Exception as e:
         print(e)
         sys.exit(1)
+    
+    if not args.from_path and not args.to_path:
+        print("Automatically detected from and to paths.")
 
-    print("From env {:<4}, path: {}".format(tf_envs['from_env'], tf_envs['from_path']))
-    print("To   env {:<4}, path: {}".format(tf_envs['to_env'], tf_envs['to_path']))
+    print("From env {:<5}, path: {}".format(tf_envs['from_env'], tf_envs['from_path']))
+    print("To   env {:<5}, path: {}".format(tf_envs['to_env'], tf_envs['to_path']))
 
     # if any portion of the to or from path was unspecified (and left to auto), seek
     # confirmation before proceeding, unless --auto-approve was specified.
     if (not args.to_path or not args.from_path) and not args.auto_approve:
-        print("Continue? (CTRL+C to abort)")
+        print("Continue (Y/n)?")
         response = sys.stdin.readline()
+        if response[0] == 'n':
+            sys.exit(1)
 
     if difftool:
         if not promote_tool.find_executable(difftool):
