@@ -160,7 +160,7 @@ def main():
         if args.ignore_missing:
             print('Ignoring missing files...')
         else:
-            print('Resolve diffs before tfpromote will proceed.')
+            print('Resolve missing files before tfpromote will proceed or use --ignore-missing.')
             sys.exit(1)
 
     if to_env_has_from_env_doesnt:
@@ -169,7 +169,7 @@ def main():
         if args.ignore_missing:
             print('Ignoring missing files...')
         else:
-            print('Resolve diffs before tfpromote will proceed.')
+            print('Resolve missing files before tfpromote will proceed or use --ignore-missing')
             sys.exit(1)
 
     if from_has_to_doesnt:
